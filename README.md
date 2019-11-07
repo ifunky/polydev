@@ -96,17 +96,15 @@ Gomplate is a template renderer which supports a growing list of datasources, su
 
 https://github.com/hairyhenderson/gomplate
 
-  
-
 **Eyaml**
-
 Used to encrypt/decrypt sensitive strings for Puppet
 
-  
+**Boto3**
+Python 3 AWS framework
 
 ## Getting Started
 
-  **Local PC Setup**
+**Local PC Setup**
 
 We've tried to keep the setup minimal so here are the pre-requisites to get going with PolyDev. Primarily this has been designed to be run under Linux/Mac but will also work on Windows.
 
