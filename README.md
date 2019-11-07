@@ -137,7 +137,7 @@ In a bash session run the following changing the names as appropriate:
     $ aws-vault add ifunky_readonly
 Follow the prompts to enter your AWS keyss.  These will be encrypted in your OS keystore
   
-  **Create Role Profiles**
+**Create Role Profiles**
 Now we'll setup some additional role profiles:
 
     $ vi ~/.aws/config
@@ -203,3 +203,23 @@ From your Terraform folder enter the PolyDev shell and run Terraform commands:
     $ tflint --aws-region=eu-west-1
 
 > NOTE : It is recommended to wrap Terraform commands in a Makefile giving you a CI/CD tool agnostic way of creating a pipeline that can run Terraform
+
+## Create a Shell Alias
+To make your life easier create a shell alias, for example
+
+    $ vim ~/.zshrc
+    function polydev() {
+            aws-vault exec --assume-role-ttl 1h $1 -- \
+            docker run -it --rm \
+            -e AWS_ACCESS_KEY_ID \
+            -e AWS_SECRET_ACCESS_KEY \
+            -e AWS_SESSION_TOKEN \
+            -e AWS_SECURITY_TOKEN \
+            --env AWS_DEFAULT_REGION=eu-west-1 \
+            -v "$PWD:/data" \
+            -v ~/.ssh:/root/.ssh \
+            ifunky/polydev:latest
+    }
+Then from your shell call `polydev` passing in the name of a profile from .aws/config:
+
+    $ polydev ifunky_prod
