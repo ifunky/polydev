@@ -14,6 +14,5 @@ publish: ## Publish to Dockerhub
 
 polydev: ## Run PolyDev shell :-)
 	@ docker run -it \
-	--user "$$(id -u):$$(id -g)" \
 	-v "$$PWD:/data" \
 	ifunky/polydev:latest

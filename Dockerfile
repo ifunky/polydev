@@ -1,6 +1,6 @@
 FROM alpine:3.8
 
-ENV TERRAFORM_VERSION=0.12.12
+ENV TERRAFORM_VERSION=0.12.16
 # Configure Go
 ENV GOROOT /usr/lib/go
 ENV GOPATH /go
@@ -46,7 +46,7 @@ RUN echo http://mirror.math.princeton.edu/pub/alpinelinux/v3.8/main >> /etc/apk/
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin
 
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin && \
-    go get -u github.com/hashicorp/terraform-config-inspect
+    go get -u github.com/kiranjthomas/terraform-config-inspect
     #go get -u github.com/liamg/tfsec && \
 
     #go get -u github.com/hairyhenderson/gomplate/cmd/gomplate  
@@ -80,7 +80,7 @@ RUN apk --no-cache add \
 RUN gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec && \
     gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec-bin && \
     inspec detect --chef-license=accept-silent && \
-    gem install hiera-eyaml
+    gem install hiera-eyaml bundler
 
 # Python3 and tools
 RUN apk add --no-cache python3 && \
@@ -93,6 +93,7 @@ RUN apk add --no-cache python3 && \
     pip3 install --upgrade awscli && \
     pip3 install boto3 && \
     pip3 install ansi2html && \
+    pip3 install yamllint && \
     #pip3 install scoutsuite && \
     pip3 install --no-cache-dir terrascan==${MODULE_VERSION} && \ 
     rm -r /root/.cache && \

@@ -2,59 +2,35 @@
 
 "Poly" - Comes from the Greek word which means many. PolyDev contains a mixture of best practice development and infrastructure tools that can be used locally and as part of a CI/CD process.
 
-  
-
 **Why PolyDev?**
 
 - Security - Use best practices with IAM Assume Role, no clear text keys
-
 - Consistency - Just spin up a container and use the right tool versions
-
 - Extensible - Use the tools the way you want or add new ones
 
-  
-
 **What Can I do With PolyDev?**
-
 - Use it locally instead of installing lots of individual tools
-
 - Use it in your CI infrastructure pipeline
 
-  
-
 **What's in the box?**
-
-  
 
 Languages
 
 - Python v3.6.8
-
 - Ruby v2.5.5
-
 - Go 1.10.8
-
 - Node v8.14 (npm)
-
 -> Why multiple languages? This enables us to use best of breed tools regardless of what they're written in.
 
-  
-
 ## Tools
-
-  
 
 **Terraform**
 
 Our tool of choice for infrastructure as code.
 
-  
-
 **TFLint**
 
 Tool for linting Terraform code.
-
-  
 
 **Terraform-Inspect-Config**
 
@@ -62,33 +38,23 @@ Helper library for extracting high-level metadata about Terraform modules from t
 
 https://github.com/hashicorp/terraform-config-inspect
 
-  
-
 **AWS CLI**
 
 AWS command line tool (with bash auto) if we need to do any adhoc checks
-
-  
 
 **TFSec (https://github.com/liamg/tfsec)**
 
 Performs basic Terraform static code analysis. This isn't the strongest tool but covers some basics, TerraScan would be better but the setup wasn't easy. To be revisited.
 
-  
-
 **Inspec**
 
 Multi cloud testing tool for continuous compliance and testing of infrastructure
-
-  
 
 **Yeoman**
 
 A scafolding framework used for creating new projects.
 
 https://yeoman.io/
-
-  
 
 **Gomplate**
 
@@ -101,6 +67,9 @@ Used to encrypt/decrypt sensitive strings for Puppet
 
 **Boto3**
 Python 3 AWS framework
+
+**YamlLint**
+Python YAML linting tool
 
 ## Getting Started
 
@@ -130,12 +99,14 @@ The key concept is that you will have one basic non privileged IAM user and from
 You can create multiple profiles for each account that you have IAM roles in, for example below will create a basic profile and additional profiles for each available role ([https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html))
 
 **Create Basic AWS-Vault Profile**
+
 In a bash session run the following changing the names as appropriate:
 
     $ aws-vault add ifunky_readonly
 Follow the prompts to enter your AWS keyss.  These will be encrypted in your OS keystore
   
 **Create Role Profiles**
+
 Now we'll setup some additional role profiles:
 
     $ vi ~/.aws/config
@@ -159,6 +130,7 @@ Here are some examples of using PolyDev as part of your day to day routine.
  - Your *.ssh* folder is mounted in the running container
 
 **AWS Command Line**
+
 In this scenario you might just need to run some AWS CLI commands.
 From any folder run the following:
 
@@ -178,6 +150,7 @@ Once in the PolyDev shell start typing AWS commands - with tab completion :-)
     aws s3 ls
 
 **Terraform Workflow**
+
 In this scenario you can use PolyDev to perform Terraform linting, validation during module development.  You could also run Terraform apply but we don't recommend this and rather a CI/CD pipeline should be implemented.
 
 From your Terraform folder enter the PolyDev shell and run Terraform commands:
@@ -195,15 +168,14 @@ From your Terraform folder enter the PolyDev shell and run Terraform commands:
                 -v ~/.ssh:/root/.ssh \
                 ifunky/polydev:latest
 
-    
-   $ terraform init
+    $ terraform init
     $ terraform validate
     $ tflint --aws-region=eu-west-1
 
 > NOTE : It is recommended to wrap Terraform commands in a Makefile giving you a CI/CD tool agnostic way of creating a pipeline that can run Terraform
 
 ## Create a Shell Alias
-To make your life easier create a shell alias, for example
+To make your life easier create a shell alias, for example:
 
     $ vim ~/.zshrc
     function polydev() {
