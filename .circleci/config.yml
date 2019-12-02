@@ -4,9 +4,10 @@ jobs:
       - image: docker:18.09-git
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Build image
-          command: docker build -t ifunky/polydev:${CIRCLE_SHA1} .
+          command: docker build -t polydev:${CIRCLE_SHA1} .
       - run:
           name: Install trivy
           command: |
@@ -22,7 +23,7 @@ jobs:
             mv trivy /usr/local/bin
       - run:
           name: Scan the local image with trivy
-          command: trivy --exit-code 0 --no-progress ifunky/polydev:${CIRCLE_SHA1}
+          command: trivy --exit-code 0 --no-progress polydev:${CIRCLE_SHA1}
 workflows:
   version: 2
   release:
