@@ -9,9 +9,12 @@ build: ## Build docker file
 build/nocache: ## Rebuild with no cache to force fresh rebuild
 	@docker build --no-cache -t ifunky/polydev:latest .
 
-publish: ## Publish to Dockerhub
+publish: ## Publish to Dockerhub9
 	@docker push ifunky/polydev:latest
 
+scan: ##  Local docker security scan 
+	@trivy --exit-code 0 --no-progress ifunky/polydev:latest
+	
 polydev: ## Run PolyDev shell :-)
 	@ docker run -it \
 	-v "$$PWD:/data" \

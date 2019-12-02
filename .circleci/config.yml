@@ -6,7 +6,7 @@ jobs:
       - checkout
       - run:
           name: Build image
-          command: make build
+          command: docker build -t ifunky/polydev:${CIRCLE_SHA1} .
       - run:
           name: Install trivy
           command: |
@@ -22,7 +22,7 @@ jobs:
             mv trivy /usr/local/bin
       - run:
           name: Scan the local image with trivy
-          command: trivy --exit-code 0 --no-progress trivy-ci-test:${CIRCLE_SHA1}
+          command: trivy --exit-code 0 --no-progress ifunky/polydev:${CIRCLE_SHA1}
 workflows:
   version: 2
   release:
