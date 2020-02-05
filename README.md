@@ -72,6 +72,9 @@ Python 3 AWS framework
 **YamlLint**
 Python YAML linting tool
 
+**Packer**
+Hashicorp Packer for building images
+
 ## Getting Started
 
 **Local PC Setup**

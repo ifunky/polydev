@@ -55,5 +55,6 @@ echo -e "\t$(python --version)"
 echo -e "\t$(go version)"
 echo -e "\t$(gomplate --version)"
 echo -e "\tNode $(node --version)"
+echo -e "\tPacker: $(packer --version)"
 
 prompt

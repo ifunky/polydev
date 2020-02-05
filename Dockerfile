@@ -1,6 +1,6 @@
 FROM alpine:3.8
 
-ENV TERRAFORM_VERSION=0.12.17
+ENV TERRAFORM_VERSION=0.12.20
 # Configure Go
 ENV GOROOT /usr/lib/go
 ENV GOPATH /go
@@ -11,6 +11,7 @@ ARG INSPEC_VERSION=4.17.14
 ARG GEM_SOURCE=https://rubygems.org
 ARG TFLINT_VERSION=v0.12.0
 ARG YO_VERSION=3.1.0
+ARG PACKER_VERSION=1.5.1
 
 # Terraform and useful tools
 RUN echo http://mirror.math.princeton.edu/pub/alpinelinux/v3.8/main >> /etc/apk/repositories && \
@@ -66,6 +67,11 @@ RUN npm install -g yo@${YO_VERSION}
 # AWS-Vault
 RUN curl -L -o /usr/local/bin/aws-vault https://github.com/99designs/aws-vault/releases/download/v4.5.1/aws-vault-linux-amd64 && \
     chmod 755 /usr/local/bin/aws-vault
+
+# Packer Install
+RUN curl -Lo packer.zip https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip && \
+    unzip packer.zip -d /usr/local/bin && \
+    rm -f packer.zip
 
 # Ruby -> Inspec
 # diffutils - This is required for diffy to work on alpine
