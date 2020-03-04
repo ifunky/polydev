@@ -75,6 +75,9 @@ Python YAML linting tool
 **Packer**
 Hashicorp Packer for building images
 
+**Helm**
+K8S packaging manager
+
 ## Getting Started
 
 **Local PC Setup**

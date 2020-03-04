@@ -56,5 +56,6 @@ echo -e "\t$(go version)"
 echo -e "\t$(gomplate --version)"
 echo -e "\tNode $(node --version)"
 echo -e "\tPacker: $(packer --version)"
+echo -e "\tHelm: $(helm version)"
 
 prompt
