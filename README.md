@@ -78,6 +78,14 @@ Hashicorp Packer for building images
 **Helm**
 K8S packaging manager
 
+**Kubectl**
+Command line tool for controlling Kubernetes clusters
+
+**AWS-IAM-Authenticator**
+A tool to use AWS IAM credentials to authenticate to a Kubernetes cluster
+
+**EKSCtlr**
+A simple CLI tool for creating clusters on EKS - Amazon's new managed Kubernetes service for EC2. It is written in Go, and uses CloudFormation
 ## Getting Started
 
 **Local PC Setup**

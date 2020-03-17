@@ -1,6 +1,6 @@
 FROM alpine:3.8
 
-ENV TERRAFORM_VERSION=0.12.21
+ENV TERRAFORM_VERSION=0.12.23
 # Configure Go
 ENV GOROOT /usr/lib/go
 ENV GOPATH /go
@@ -9,21 +9,23 @@ ENV PATH /go/bin:$PATH
 ARG MODULE_VERSION=0.1.0
 ARG INSPEC_VERSION=4.17.14
 ARG GEM_SOURCE=https://rubygems.org
-ARG TFLINT_VERSION=v0.12.0
-ARG YO_VERSION=3.1.0
+ARG TFLINT_VERSION=v0.15.1
+ARG YO_VERSION=3.1.1
 ARG PACKER_VERSION=1.5.1
-ARG HELM_VERSION=3.1.1
+ARG HELM_VERSION=2.16.3
+ENV KUBE_VERSION=v1.17.3
+ARG AWS_IAM_AUTH_VERSION=0.5.0
 
 # Terraform and useful tools
 RUN echo http://mirror.math.princeton.edu/pub/alpinelinux/v3.8/main >> /etc/apk/repositories && \
     echo http://mirror.math.princeton.edu/pub/alpinelinux/v3.8/community >> /etc/apk/repositories && \
     echo http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
     apk update && \
-    apk --no-cache add \
-    nodejs \
-    nodejs-npm \
+    apk --no-cache add  \
     vim \
     musl-dev \
+    nodejs-current \
+    npm \
     linux-headers \
     python3-dev \
     build-base \
@@ -50,7 +52,6 @@ RUN echo http://mirror.math.princeton.edu/pub/alpinelinux/v3.8/main >> /etc/apk/
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin && \
     go get -u github.com/kiranjthomas/terraform-config-inspect
     #go get -u github.com/liamg/tfsec && \
-
     #go get -u github.com/hairyhenderson/gomplate/cmd/gomplate  
 
 # Install gomplate as not working with go get
@@ -74,10 +75,20 @@ RUN curl -Lo packer.zip https://releases.hashicorp.com/packer/${PACKER_VERSION}/
     unzip packer.zip -d /usr/local/bin && \
     rm -f packer.zip
 
-# Helm
+# Helm & kubectl
 RUN curl -L https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz |tar xvz && \
     mv linux-amd64/helm /usr/bin/helm && \
-    chmod +x /usr/bin/helm
+    chmod +x /usr/bin/helm && \
+    wget -q https://storage.googleapis.com/kubernetes-release/release/${KUBE_VERSION}/bin/linux/amd64/kubectl -O /usr/local/bin/kubectl && \
+    chmod +x /usr/local/bin/kubectl
+
+RUN curl -LO https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v${AWS_IAM_AUTH_VERSION}/aws-iam-authenticator_${AWS_IAM_AUTH_VERSION}_linux_amd64 && \
+    mv aws-iam-authenticator_${AWS_IAM_AUTH_VERSION}_linux_amd64 /usr/bin/aws-iam-authenticator && \
+    chmod +x /usr/bin/aws-iam-authenticator
+
+RUN curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp && \
+    mv /tmp/eksctl /usr/bin && \
+    chmod +x /usr/bin/eksctl
 
 # Ruby -> Inspec
 # diffutils - This is required for diffy to work on alpine
@@ -115,25 +126,6 @@ RUN apk add --no-cache python3 && \
     rm -rf /var/tmp/* \
     apk del build-base \
     apk update
-
-#RUN apk add --no-cache python3 \
-#    python3 -m ensurepip && \
-#    rm -r /usr/lib/python*/ensurepip && \
-#    pip3 install --upgrade pip setuptools && \
-#    if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
-#    if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
-#    rm -r /root/.cache    
-#    apk add --no-cache python3=${PYTHON_VERSION} 
-#    pip3 install --no-cache-dir terrascan==${MODULE_VERSION} && \
-#   find / -type d -name __pycache__ -exec rm -r {} + && \
-#    rm -r /usr/lib/python*/ensurepip && \
-#    rm -r /usr/lib/python*/lib2to3 && \
-#    rm -r /usr/lib/python*/turtledemo && \
-#    rm /usr/lib/python*/turtle.py && \
-#    rm /usr/lib/python*/webbrowser.py && \
-#    rm /usr/lib/python*/doctest.py && \
-#    rm /usr/lib/python*/pydoc.py
-
 
 # Settings
 RUN rm /var/cache/apk/* \
