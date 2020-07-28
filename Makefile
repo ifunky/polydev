@@ -9,6 +9,13 @@ build: ## Build PolyDev
 build/amplify: ## Build PolyDev
 	@docker build -t ifunky/polydev-amplify:latest -f amplify-hugo.dockerfile .
 
+
+build/aws: ## Build AWS CLI and other related tools
+	@docker build -t ifunky/polydev-aws:latest -f dockerfiles/aws/Dockerfile dockerfiles/aws/
+
+build/aws/nocache: ## Build AWS CLI and other related tools (from scratch)
+	@docker build --no-cache -t ifunky/polydev-aws:latest -f dockerfiles/aws/Dockerfile dockerfiles/aws/
+
 build/nocache: ## Rebuild with no cache to force fresh rebuild
 	@docker build --no-cache -t ifunky/polydev:latest .
 
