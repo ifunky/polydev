@@ -48,7 +48,8 @@ echo ---------------------------------------------------------------------------
 echo -e "\t$(aws --version)"
 echo -e "\t$(copilot --version)"
 echo -e "\tSession-manager-plugin$(session-manager-plugin --version)"
-echo -e "\t$(python3.7 --version)"
-
+echo -e "\t$(python3 --version)"
+echo -e "\tNode $(node --version)"
+echo -e "\tCDK $(cdk --version)"
 
 prompt

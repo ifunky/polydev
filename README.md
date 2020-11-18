@@ -17,10 +17,10 @@
 
 Languages
 
-- Python v3.6.8
-- Ruby v2.5.5
-- Go 1.10.8
-- Node v8.14 (npm)
+- Python v3.8.5
+- Ruby v2.7.1
+- Go 1.13.15
+- Node v14.5 (npm)
 -> Why multiple languages? This enables us to use best of breed tools regardless of what they're written in.
 
 ## Tools

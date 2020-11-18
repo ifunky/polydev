@@ -21,7 +21,6 @@ build/nocache: ## Rebuild with no cache to force fresh rebuild
 
 publish: ## Publish to Dockerhub
 	@docker push ifunky/polydev:latest
-	@docker push ifunky/polydev-amplify:latest
 
 scan: ##  Local docker security scan 
 	@trivy --exit-code 0 --no-progress ifunky/polydev:latest
@@ -29,4 +28,9 @@ scan: ##  Local docker security scan
 polydev: ## Run PolyDev shell :-)
 	@ docker run -it \
 	-v "$$PWD:/data" \
-	ifunky/polydev-amplify:latest
+	ifunky/polydev:latest
+
+polydev/aws: ## Run PolyDev AWS shell :-)
+	@ docker run -it \
+	-v "$$PWD:/data" \
+	ifunky/polydev-aws:latest

@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM alpine:3.12.1
 
 ENV TERRAFORM_VERSION=0.12.23
 # Configure Go
@@ -49,9 +49,8 @@ RUN echo http://mirror.math.princeton.edu/pub/alpinelinux/v3.8/main >> /etc/apk/
     wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin
 
-RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin && \
-    go get -u github.com/kiranjthomas/terraform-config-inspect
-    #go get -u github.com/liamg/tfsec && \
+RUN go get -u github.com/kiranjthomas/terraform-config-inspect && \
+    go get -u github.com/tfsec/tfsec/cmd/tfsec
     #go get -u github.com/hairyhenderson/gomplate/cmd/gomplate  
 
 # Install gomplate as not working with go get
@@ -91,16 +90,16 @@ RUN curl --silent --location "https://github.com/weaveworks/eksctl/releases/down
     chmod +x /usr/bin/eksctl
 
 # Ruby -> Inspec
-# diffutils - This is required for diffy to work on alpine
 RUN apk --no-cache add \
   ruby-dev \
   ruby-rdoc \
-  ruby-bundler=1.16.2-r1 \
-  ruby-json=2.5.7-r0 \
+  ruby-bundler \
+  ruby-json \
   ruby-webrick \
   diffutils=3.6-r1
 
-RUN gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec && \
+RUN gem install bigdecimal && \
+    gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec && \
     gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec-bin && \
     inspec detect --chef-license=accept-silent && \
     gem install hiera-eyaml bundler

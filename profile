@@ -57,4 +57,6 @@ echo -e "\t$(gomplate --version)"
 echo -e "\tNode $(node --version)"
 echo -e "\tPacker: $(packer --version)"
 
+source /src/pky2env/bin/activate
+
 prompt
