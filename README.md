@@ -20,7 +20,7 @@ Languages
 - Python v3.8.5
 - Ruby v2.7.1
 - Go 1.13.15
-- Node v14.5 (npm)
+- Node v14.5.0 (npm)
 -> Why multiple languages? This enables us to use best of breed tools regardless of what they're written in.
 
 ## Tools
@@ -62,9 +62,6 @@ https://yeoman.io/
 Gomplate is a template renderer which supports a growing list of datasources, such as: JSON (including EJSON - encrypted JSON), YAML, AWS EC2 metadata, BoltDB, Hashicorp Consul and Hashicorp Vault secrets.
 
 https://github.com/hairyhenderson/gomplate
-
-**Eyaml**
-Used to encrypt/decrypt sensitive strings for Puppet
 
 **Boto3**
 Python 3 AWS framework
