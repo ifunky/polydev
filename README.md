@@ -33,6 +33,10 @@ Our tool of choice for infrastructure as code.
 
 Tool for linting Terraform code.
 
+**Checkov**
+
+Static code analysis tool for infrastructure-as-code for security best practices
+
 **Terraform-Inspect-Config**
 
 Helper library for extracting high-level metadata about Terraform modules from their source code.

@@ -48,6 +48,7 @@ echo ---------------------------------------------------------------------------
 TERRAFORM_VERSION=$(terraform --version)
 echo -e "\t${TERRAFORM_VERSION//[$'\t\r\n']}"
 echo -e "\t$(tflint --version)"
+echo -e "\tCheckov : $(checkov --version)"
 echo -e "\t$(aws --version)"
 echo -e "\tInspec: $(inspec --version)"
 echo -e "\t$(ruby --version)"

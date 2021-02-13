@@ -1,6 +1,6 @@
 FROM alpine:3.12.1
 
-ENV TERRAFORM_VERSION=0.12.29
+ENV TERRAFORM_VERSION=0.13.5
 # Configure Go
 ENV GOROOT /usr/lib/go
 ENV GOPATH /go
@@ -116,6 +116,7 @@ RUN apk add --no-cache python3 && \
     pip3 install boto3 && \
     pip3 install ansi2html && \
     pip3 install yamllint && \
+    pip3 install checkov && \
     #pip3 install scoutsuite && \
     pip3 install --no-cache-dir terrascan==${MODULE_VERSION} && \ 
     rm -r /root/.cache && \
