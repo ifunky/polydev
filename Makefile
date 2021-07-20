@@ -23,7 +23,8 @@ publish: ## Publish to Dockerhub
 	@docker push ifunky/polydev:latest
 
 scan: ##  Local docker security scan 
-	@trivy --exit-code 0 --no-progress ifunky/polydev:latest
+	#@trivy image --format template --template "@contrib/junit.tpl" -o junit-report.xml ifunky/polydev:latest
+	@trivy --exit-code 1 --no-progress ifunky/polydev:latest
 	
 polydev: ## Run PolyDev shell :-)
 	@ docker run -it \

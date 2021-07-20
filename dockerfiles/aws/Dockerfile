@@ -17,6 +17,9 @@ RUN cd /tmp && \
     yum install -y nodejs && \
     npm install -g aws-cdk
 
+# Tooling install
+RUN curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/aws-cloudformation/cloudformation-guard/main/install-guard.sh | sh
+
 # Clean up
 RUN rm -rf /tmp/*
 
