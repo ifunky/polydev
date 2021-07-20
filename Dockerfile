@@ -1,6 +1,6 @@
 FROM alpine:3.12.1
 
-ENV TERRAFORM_VERSION=0.13.5
+ENV TERRAFORM_VERSION=0.14.11
 # Configure Go
 ENV GOROOT /usr/lib/go
 ENV GOPATH /go
@@ -49,8 +49,8 @@ RUN echo http://mirror.math.princeton.edu/pub/alpinelinux/v3.8/main >> /etc/apk/
     wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin
 
-RUN go get -u github.com/kiranjthomas/terraform-config-inspect && \
-    go get -u github.com/tfsec/tfsec/cmd/tfsec
+#RUN go get -u github.com/tfsec/tfsec/cmd/tfsec 
+    # go get -u github.com/hashicorp/terraform-config-inspect    
     #go get -u github.com/hairyhenderson/gomplate/cmd/gomplate  
 
 # Install gomplate as not working with go get
@@ -63,7 +63,13 @@ RUN curl -Lo tflint.zip https://github.com/wata727/tflint/releases/download/${TF
     rm -f tflint.zip
 
 # Yeoman 
-RUN npm install -g yo@${YO_VERSION}
+RUN npm install -g yo@${YO_VERSION} && \
+    git clone https://github.com/aquasecurity/cloudsploit.git && \
+    npm install
+
+RUN wget https://github.com/open-policy-agent/conftest/releases/download/v0.25.0/conftest_0.25.0_Linux_x86_64.tar.gz  && \
+    tar xzf conftest_0.25.0_Linux_x86_64.tar.gz && \
+    mv conftest /usr/local/bin
 
 # AWS-Vault
 RUN curl -L -o /usr/local/bin/aws-vault https://github.com/99designs/aws-vault/releases/download/v4.5.1/aws-vault-linux-amd64 && \
@@ -101,7 +107,8 @@ RUN apk --no-cache add \
 RUN gem install bigdecimal && \
     gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec && \
     gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec-bin && \
-    inspec detect --chef-license=accept-silent && \
+    gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec-bin && \
+    gem install cfn-nag && \
     gem install hiera-eyaml bundler
 
 # Python3 and tools

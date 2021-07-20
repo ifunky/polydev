@@ -37,6 +37,10 @@ Tool for linting Terraform code.
 
 Static code analysis tool for infrastructure-as-code for security best practices
 
+**Conftest**
+
+Utility to help you write tests against structured configuration data.
+
 **Terraform-Inspect-Config**
 
 Helper library for extracting high-level metadata about Terraform modules from their source code.
@@ -50,6 +54,10 @@ AWS command line tool (with bash auto) if we need to do any adhoc checks
 **TFSec (https://github.com/liamg/tfsec)**
 
 Performs basic Terraform static code analysis. This isn't the strongest tool but covers some basics, TerraScan would be better but the setup wasn't easy. To be revisited.
+
+**Cfn Nag (https://github.com/stelligent/cfn_nag)**
+
+The cfn-nag tool looks for patterns in CloudFormation templates that may indicate insecure infrastructure.
 
 **Inspec**
 

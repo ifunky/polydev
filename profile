@@ -49,6 +49,7 @@ TERRAFORM_VERSION=$(terraform --version)
 echo -e "\t${TERRAFORM_VERSION//[$'\t\r\n']}"
 echo -e "\t$(tflint --version)"
 echo -e "\tCheckov : $(checkov --version)"
+echo -e "\tConftest : $(conftest --version)"
 echo -e "\t$(aws --version)"
 echo -e "\tInspec: $(inspec --version)"
 echo -e "\t$(ruby --version)"
@@ -57,7 +58,6 @@ echo -e "\t$(go version)"
 echo -e "\t$(gomplate --version)"
 echo -e "\tNode $(node --version)"
 echo -e "\tPacker: $(packer --version)"
-
-source /src/pky2env/bin/activate
+echo -e "\tCfn_nag $(cfn_nag --version)"
 
 prompt
