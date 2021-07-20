@@ -10,11 +10,7 @@ phases:
   pre_build:
     commands:
       - echo Install Trivy...      
-      - apt-get install wget apt-transport-https gnupg
-      - wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | apt-key add -
-      - echo deb https://aquasecurity.github.io/trivy-repo/deb bionic main | tee -a /etc/apt/sources.list.d/trivy.list
-      - apt-get update
-      - apt-get install -y trivy      
+      - rpm -ivh https://github.com/aquasecurity/trivy/releases/download/v0.18.3/trivy_0.18.3_Linux-64bit.rpm 
       - echo Logging in to Amazon ECR...
       - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
       - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
