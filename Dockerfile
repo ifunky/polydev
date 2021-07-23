@@ -102,8 +102,7 @@ RUN gem install bigdecimal && \
     gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec && \
     gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec-bin && \
     gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec-bin && \
-    gem install cfn-nag && \
-    gem install hiera-eyaml bundler
+    gem install cfn-nag
 
 # Python3 and tools
 RUN apk add --no-cache python3 && \
