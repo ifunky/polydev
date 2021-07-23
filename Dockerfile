@@ -1,4 +1,4 @@
-FROM alpine:3.12.1
+FROM alpine:3.14
 
 ENV TERRAFORM_VERSION=0.14.11
 # Configure Go
@@ -49,13 +49,9 @@ RUN echo http://mirror.math.princeton.edu/pub/alpinelinux/v3.8/main >> /etc/apk/
     wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin
 
-RUN export GO111MODULE=on;go get install github.com/aquasecurity/tfsec/cmd/tfsec@latest
-    # go get -u github.com/hashicorp/terraform-config-inspect    
-    #go get -u github.com/hairyhenderson/gomplate/cmd/gomplate  
-
-# Install gomplate as not working with go get
-RUN curl  -Lo /usr/local/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v3.5.0/gomplate_linux-amd64 -sSL  && \
-    chmod 755 /usr/local/bin/gomplate
+RUN go install github.com/aquasecurity/tfsec/cmd/tfsec@latest && \
+    go get -u github.com/hashicorp/terraform-config-inspect && \
+    go get github.com/hairyhenderson/gomplate/v3/cmd/gomplate
 
 # TFlint
 RUN curl -Lo tflint.zip https://github.com/wata727/tflint/releases/download/${TFLINT_VERSION}/tflint_linux_amd64.zip && \
@@ -63,9 +59,7 @@ RUN curl -Lo tflint.zip https://github.com/wata727/tflint/releases/download/${TF
     rm -f tflint.zip
 
 # Yeoman 
-RUN npm install -g yo@${YO_VERSION} && \
-    git clone https://github.com/aquasecurity/cloudsploit.git && \
-    npm install
+#RUN npm uninstall -g npm;npm install -g yo@${YO_VERSION}
 
 RUN wget https://github.com/open-policy-agent/conftest/releases/download/v0.25.0/conftest_0.25.0_Linux_x86_64.tar.gz  && \
     tar xzf conftest_0.25.0_Linux_x86_64.tar.gz && \
