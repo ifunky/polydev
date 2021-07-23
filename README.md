@@ -17,8 +17,8 @@
 
 Languages
 
-- Python v3.8.5
-- Ruby v2.7.1
+- Python v3.8.10
+- Ruby v3.7.3
 - Go 1.13.15
 - Node v14.5.0 (npm)
 -> Why multiple languages? This enables us to use best of breed tools regardless of what they're written in.
@@ -97,8 +97,10 @@ A tool to use AWS IAM credentials to authenticate to a Kubernetes cluster
 A simple CLI tool for creating clusters on EKS - Amazon's new managed Kubernetes service for EC2. It is written in Go, and uses CloudFormation
 ## Getting Started
 
-**Local PC Setup**
+**Optional Local Setup (IAM Keys)**
 
+If you're still using IAM keys then the following workflow provides a secure process to use PolyDev locally whilst not exposing IAM credentials.
+ 
 We've tried to keep the setup minimal so here are the pre-requisites to get going with PolyDev. Primarily this has been designed to be run under Linux/Mac but will also work on Windows.
 
 **Windows**

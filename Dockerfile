@@ -49,7 +49,7 @@ RUN echo http://mirror.math.princeton.edu/pub/alpinelinux/v3.8/main >> /etc/apk/
     wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin
 
-#RUN go get -u github.com/tfsec/tfsec/cmd/tfsec 
+RUN export GO111MODULE=on;go get install github.com/aquasecurity/tfsec/cmd/tfsec@latest
     # go get -u github.com/hashicorp/terraform-config-inspect    
     #go get -u github.com/hairyhenderson/gomplate/cmd/gomplate  
 
