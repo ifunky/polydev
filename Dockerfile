@@ -98,11 +98,11 @@ RUN apk --no-cache add \
   ruby-webrick \
   diffutils=3.6-r1
 
-RUN gem install bigdecimal && \
-    gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec && \
-    gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec-bin && \
-    gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec-bin && \
-    gem install cfn-nag
+#RUN gem install bigdecimal && \
+#    gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec && \
+#    gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec-bin && \
+#    gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec-bin && \
+#    gem install cfn-nag
 
 # Python3 and tools
 RUN apk add --no-cache python3 && \
