@@ -160,7 +160,7 @@ Here are some examples of using PolyDev as part of your day to day routine.
 In this scenario you might just need to run some AWS CLI commands.
 From any folder run the following:
 
-    $ aws-vault exec --assume-role-ttl 1h ifunky_prod -- \                                                                                                                                                                            
+    $ aws-vault exec --duration 1h ifunky_prod -- \                                                                                                                                                                            
             docker run -it --rm \
             -e AWS_ACCESS_KEY_ID \
             -e AWS_SECRET_ACCESS_KEY \
@@ -182,7 +182,7 @@ In this scenario you can use PolyDev to perform Terraform linting, validation du
 From your Terraform folder enter the PolyDev shell and run Terraform commands:
 
     $ cd /projects/my_terraform_module
-    $ aws-vault exec --assume-role-ttl 1h ifunky_prod -- \                                                                                                                                                                            
+    $ aws-vault exec --duration 1h ifunky_prod -- \                                                                                                                                                                            
                 docker run -it --rm \
                 -e AWS_ACCESS_KEY_ID \
                 -e AWS_SECRET_ACCESS_KEY \
@@ -205,7 +205,7 @@ To make your life easier create a shell alias, for example:
 
     $ vim ~/.zshrc
     function polydev() {
-            aws-vault exec --assume-role-ttl 1h $1 -- \
+            aws-vault exec --duration 1h $1 -- \
             docker run -it --rm \
             -e AWS_ACCESS_KEY_ID \
             -e AWS_SECRET_ACCESS_KEY \
