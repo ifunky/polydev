@@ -1,6 +1,6 @@
-FROM alpine:3.14
+FROM alpine:3.14.2
 
-ENV TERRAFORM_VERSION=0.14.11
+ENV TERRAFORM_VERSION=1.0.9
 # Configure Go
 ENV GOROOT /usr/lib/go
 ENV GOPATH /go
@@ -49,9 +49,10 @@ RUN echo http://mirror.math.princeton.edu/pub/alpinelinux/v3.8/main >> /etc/apk/
     wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin
 
+# goplate v3.10.0 requires go v17 whuch isn't installed as part of this build
 RUN go install github.com/aquasecurity/tfsec/cmd/tfsec@latest && \
     go get -u github.com/hashicorp/terraform-config-inspect && \
-    go get github.com/hairyhenderson/gomplate/v3/cmd/gomplate
+    go get github.com/hairyhenderson/gomplate/v3/cmd/gomplate@v3.8.0
 
 # TFlint
 RUN curl -Lo tflint.zip https://github.com/wata727/tflint/releases/download/${TFLINT_VERSION}/tflint_linux_amd64.zip && \
@@ -61,13 +62,9 @@ RUN curl -Lo tflint.zip https://github.com/wata727/tflint/releases/download/${TF
 # Yeoman 
 #RUN npm uninstall -g npm;npm install -g yo@${YO_VERSION}
 
-RUN wget https://github.com/open-policy-agent/conftest/releases/download/v0.25.0/conftest_0.25.0_Linux_x86_64.tar.gz  && \
-    tar xzf conftest_0.25.0_Linux_x86_64.tar.gz && \
+RUN wget https://github.com/open-policy-agent/conftest/releases/download/v0.28.2/conftest_0.28.2_Linux_x86_64.tar.gz  && \
+    tar xzf conftest_0.28.2_Linux_x86_64.tar.gz && \
     mv conftest /usr/local/bin
-
-# AWS-Vault
-RUN curl -L -o /usr/local/bin/aws-vault https://github.com/99designs/aws-vault/releases/download/v4.5.1/aws-vault-linux-amd64 && \
-    chmod 755 /usr/local/bin/aws-vault
 
 # Packer Install
 RUN curl -Lo packer.zip https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip && \
@@ -85,9 +82,9 @@ RUN curl -LO https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/d
     mv aws-iam-authenticator_${AWS_IAM_AUTH_VERSION}_linux_amd64 /usr/bin/aws-iam-authenticator && \
     chmod +x /usr/bin/aws-iam-authenticator
 
-RUN curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp && \
-    mv /tmp/eksctl /usr/bin && \
-    chmod +x /usr/bin/eksctl
+#RUN curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp && \
+#    mv /tmp/eksctl /usr/bin && \
+#    chmod +x /usr/bin/eksctl
 
 # Ruby -> Inspec
 RUN apk --no-cache add \
