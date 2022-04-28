@@ -1,5 +1,4 @@
 # PolyDev
-[![CircleCI](https://circleci.com/gh/ifunky/polydev.svg?style=svg)](https://circleci.com/gh/ifunky/polydev)
 
 "Poly" - Comes from the Greek word which means many. PolyDev contains a mixture of best practice development and infrastructure tools that can be used locally and as part of a CI/CD process.
 
