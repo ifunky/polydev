@@ -1,28 +1,40 @@
-# PolyDev
+# Cloud Security Arcitect Tools (CSAT)
 
-"Poly" - Comes from the Greek word which means many. PolyDev contains a mixture of best practice development and infrastructure tools that can be used locally and as part of a CI/CD process.
+CSAT contains a mixture of best practice development and infrastructure tools for use by Wizards that can be used locally and as part of a CI/CD process.
 
-**Why PolyDev?**
+**Why CSAT?**
 
 - Security - Use best practices with IAM Assume Role, no clear text keys
 - Consistency - Just spin up a container and use the right tool versions
 - Extensible - Use the tools the way you want or add new ones
 
-**What Can I do With PolyDev?**
+**What Can I do With CSAT?**
 - Use it locally instead of installing lots of individual tools
 - Use it in your CI infrastructure pipeline
+
+## Features
+
+- Uses Docker-out-of-Docker which uses your host docker installation with just the cli tools running in the tooling container
+- Mounts your `.ssh` and `.aws` folders
+- Mounts the current folder to `data` within the running container
 
 **What's in the box?**
 
 Languages
 
-- Python v3.9.5
-- Ruby v2.7.3
-- Go 1.16.5
-- Node v16.3 (npm)
+- Python v3.10.5
+- Ruby v3.0.4
+- Go 1.17.10
+- Node v17.9.0 (npm)
 -> Why multiple languages? This enables us to use best of breed tools regardless of what they're written in.
 
+
+
 ## Tools
+
+**Wiz-Cli**
+
+Wiz-cli is a locally deployed command line tool that helps you detect and prevent security misconfigurations and vulnerabilities early in the development cycle.
 
 **Terraform**
 
@@ -49,14 +61,6 @@ https://github.com/hashicorp/terraform-config-inspect
 **AWS CLI**
 
 AWS command line tool (with bash auto) if we need to do any adhoc checks
-
-**TFSec (https://github.com/liamg/tfsec)**
-
-Performs basic Terraform static code analysis. This isn't the strongest tool but covers some basics, TerraScan would be better but the setup wasn't easy. To be revisited.
-
-**Cfn Nag (https://github.com/stelligent/cfn_nag)**
-
-The cfn-nag tool looks for patterns in CloudFormation templates that may indicate insecure infrastructure.
 
 **Inspec**
 
@@ -96,125 +100,116 @@ A tool to use AWS IAM credentials to authenticate to a Kubernetes cluster
 A simple CLI tool for creating clusters on EKS - Amazon's new managed Kubernetes service for EC2. It is written in Go, and uses CloudFormation
 ## Getting Started
 
+### Docker Registry
+
+**NOTE:** Currentlty we are looking for a registry home :-). For now build the container locally from the root of the cloned repo.
+
+```bash
+$ make build
+```
+
 **Optional Local Setup (IAM Keys)**
 
-If you're still using IAM keys then the following workflow provides a secure process to use PolyDev locally whilst not exposing IAM credentials.
- 
-We've tried to keep the setup minimal so here are the pre-requisites to get going with PolyDev. Primarily this has been designed to be run under Linux/Mac but will also work on Windows.
+If you're still using IAM keys then the following workflow provides a secure process to use CSAT locally whilst not exposing IAM credentials in plain text.
 
-**Windows**
+We've tried to keep the setup minimal so here are the pre-requisites to get going with CSAT. Primarily this has been designed to be run under Linux/Mac but will also work on Windows.
 
-1.  **WSL** - Follow the offical guide here: [https://docs.microsoft.com/en-us/windows/wsl/install-win10](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
+ **MAC**
 
-2.  **Docker** - Install Docker Community addition and setup with WSL: [https://nickjanetakis.com/blog/setting-up-docker-for-windows-and-wsl-to-work-flawlessly](https://nickjanetakis.com/blog/setting-up-docker-for-windows-and-wsl-to-work-flawlessly). Also see https://code.visualstudio.com/docs/remote/troubleshooting#_docker-desktop-for-windows-tips for troubleshooting local docker file sharing issues.
+You can use something like https://www.leapp.cloud/ to manage your CSP credentials which stores your sensitive data in the OS keychain never exposing secrets in clear text files.
 
-3.  **AWS-Vault** - In WSL run the following to install AWS-Vault
-    $ sudo curl -L -o /usr/local/bin/aws-vault https://github.com/99designs/aws-    vault/releases/download/v4.5.1/aws-vault-linux-amd64
-    $ sudo chmod 755 /usr/local/bin/aws-vault
+Using Leap as an example with AWS:
 
-  **MAC**
+![image-20220805123108255](assets/leapp-aws-start-session.png)
 
-    brew cask install aws-vault
+After starting a new session Leapp will auto populate `.aws/credentials` with temporary credentials which are ready to be passed into the CSAT container.
 
-**Configuring AWS-Vault**
+### Useful Helpers - Create a Shell Alias
 
-AWS-Vault is used to store encrypted AWS keys using the operating systems keystore which is also configured for assuming IAM roles. This ensures we never expose keys in clear text and gives an additional benefit of only using short lived sessions.
+To make your life easier create a shell alias, for example you can add the following to your shell:
 
-The key concept is that you will have one basic non privileged IAM user and from this login you will have been granted access to other accounts via IAM roles that you can assume.
-You can create multiple profiles for each account that you have IAM roles in, for example below will create a basic profile and additional profiles for each available role ([https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html))
+    $ vim ~/.zshrc
+    function csat() {
+            docker run -it --rm \
+            -e AWS_ACCESS_KEY_ID \
+            -e AWS_SECRET_ACCESS_KEY \
+            -e AWS_SESSION_TOKEN \
+            -e AWS_SECURITY_TOKEN \
+            -e AWS_DEFAULT_REGION=us-east-1 \
+            -e WIZ_ENV=$1 \
+            -v "$PWD:/data" \
+            -v ~/.ssh:/root/.ssh \
+            -v ~/.aws:/root/.aws \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            wiz-sec/csatools:latest
+    }
 
-**Create Basic AWS-Vault Profile**
 
-In a bash session run the following changing the names as appropriate:
+Then from your shell call `csat` passing in the name of a profile from .aws/config:
 
-    $ aws-vault add ifunky_readonly
-Follow the prompts to enter your AWS keyss.  These will be encrypted in your OS keystore
-  
-**Create Role Profiles**
+```bash
+$ csat test
+```
 
-Now we'll setup some additional role profiles:
+## 
 
-    $ vi ~/.aws/config
-    
-    [profile ifunky_readonly]
-    region=eu-west-1
-    output=json
-    
-    [profile ifunky_prod]
-    source_profile=ifunky_readonly
-    role_arn=arn:aws:iam::626351345541:role/pipeline-engineer
-    mfa_serial=YOUR_MFA_ARN
+# Using CSAT
 
-> For more info and usage guide see: [https://github.com/99designs/aws-vault](https://github.com/99designs/aws-vault)
->
-> NOTE : The above setup is based on using IAM users with minimal access combined with roles that can be assumed
-
-## Using PolyDev
-Here are some examples of using PolyDev as part of your day to day routine.
+Here are some examples of using CSAT as part of your day to day routine once you have authenticated
  - The current folder where you run the commands are mounted to */data*
- - Your *.ssh* folder is mounted in the running container
+
+### Wiz
+
+Internally at Wiz we use different tenants that we must authorise against before running any `wiz-cli` commands.  The following example will show how we can run an IAC Terraform scan using CSAT.
+
+Available tenants:
+
+| Name | Description                 |
+| ---- | --------------------------- |
+| test | Test tenant for use by CSAs |
+| demo | For use on the demo tenant  |
+
+Given you have the useful shell functions setup from above the following will show connecting to the `test` tenant: 
+
+```bash
+$ csat-wiz test # drop into the CSAT shell ready for connecting to test
+> wizcli auth --id <YOUR-ID> --secret <YOUR-SECRET>
+> wizcli iac scan --path /data
+```
+
+![til](./assets/wiz-iac-scan.gif)
+
+
 
 **AWS Command Line**
 
 In this scenario you might just need to run some AWS CLI commands.
 From any folder run the following:
 
-    $ aws-vault exec --assume-role-ttl 1h ifunky_prod -- \                                                                                                                                                                            
-            docker run -it --rm \
-            -e AWS_ACCESS_KEY_ID \
-            -e AWS_SECRET_ACCESS_KEY \
-            -e AWS_SESSION_TOKEN \
-            -e AWS_SECURITY_TOKEN \
-            --env AWS_DEFAULT_REGION=eu-west-1 \
-            --user "$(id -u):$(id -g)" \
-            -v "$PWD:/data" \
-            -v ~/.ssh:/root/.ssh \
-            ifunky/polydev:latest
+
 Once in the PolyDev shell start typing AWS commands - with tab completion :-)
 
-    aws s3 ls
+```bash
+aws s3 ls
+```
 
 **Terraform Workflow**
 
-In this scenario you can use PolyDev to perform Terraform linting, validation during module development.  You could also run Terraform apply but we don't recommend this and rather a CI/CD pipeline should be implemented.
+In this scenario you can use CSAT to perform Terraform linting, validation during module development.  You could also run Terraform apply but we don't recommend this and rather a CI/CD pipeline should be implemented.
 
-From your Terraform folder enter the PolyDev shell and run Terraform commands:
+From your Terraform folder enter the CSAT shell and run Terraform commands:
 
-    $ cd /projects/my_terraform_module
-    $ aws-vault exec --assume-role-ttl 1h ifunky_prod -- \                                                                                                                                                                            
-                docker run -it --rm \
-                -e AWS_ACCESS_KEY_ID \
-                -e AWS_SECRET_ACCESS_KEY \
-                -e AWS_SESSION_TOKEN \
-                -e AWS_SECURITY_TOKEN \
-                --env AWS_DEFAULT_REGION=eu-west-1 \
-                --user "$(id -u):$(id -g)" \
-                -v "$PWD:/data" \
-                -v ~/.ssh:/root/.ssh \
-                ifunky/polydev:latest
+```bash
+$ cd /projects/my_terraform_module
+$ csat
 
-    $ terraform init
-    $ terraform validate
-    $ tflint --aws-region=eu-west-1
+> terraform init
+> terraform validate
+> tflint --aws-region=eu-west-1
+```
 
 > NOTE : It is recommended to wrap Terraform commands in a Makefile giving you a CI/CD tool agnostic way of creating a pipeline that can run Terraform
 
-## Create a Shell Alias
-To make your life easier create a shell alias, for example:
+## Customise
+Update the motd with your own name: https://patorjk.com/software/taag/#p=display&f=Big&t=CSA%20Tools
 
-    $ vim ~/.zshrc
-    function polydev() {
-            aws-vault exec --assume-role-ttl 1h $1 -- \
-            docker run -it --rm \
-            -e AWS_ACCESS_KEY_ID \
-            -e AWS_SECRET_ACCESS_KEY \
-            -e AWS_SESSION_TOKEN \
-            -e AWS_SECURITY_TOKEN \
-            --env AWS_DEFAULT_REGION=eu-west-1 \
-            -v "$PWD:/data" \
-            -v ~/.ssh:/root/.ssh \
-            ifunky/polydev:latest
-    }
-Then from your shell call `polydev` passing in the name of a profile from .aws/config:
-
-    $ polydev ifunky_prod

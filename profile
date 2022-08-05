@@ -46,6 +46,7 @@ echo -e "\n${GREEN}Installed Versions:"
 echo -------------------------------------------------------------------------------------------
 
 TERRAFORM_VERSION=$(terraform --version)
+WIZ_VERSION=$(wizcli version)
 echo -e "\t${TERRAFORM_VERSION//[$'\t\r\n']}"
 echo -e "\t$(tflint --version)"
 echo -e "\tCheckov : $(checkov --version)"
@@ -58,6 +59,5 @@ echo -e "\t$(go version)"
 echo -e "\t$(gomplate --version)"
 echo -e "\tNode $(node --version)"
 echo -e "\tPacker: $(packer --version)"
-echo -e "\tCfn_nag $(cfn_nag --version)"
 
 prompt
