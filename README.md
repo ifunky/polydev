@@ -12,17 +12,27 @@
 - Use it locally instead of installing lots of individual tools
 - Use it in your CI infrastructure pipeline
 
+**Features**
+
+- Uses Docker-out-of-Docker which uses your host docker installation with just the cli tools running in the tooling container
+- Mounts your `.ssh` and `.aws` folders
+- Mounts the current folder to `/data` within the running container
+
 **What's in the box?**
 
 Languages
 
-- Python v3.9.5
-- Ruby v2.7.3
-- Go 1.16.5
-- Node v16.3 (npm)
+- Python v3.10.5
+- Ruby v3.1.2
+- Go 1.18.6
+- Node v17.9.1 (npm)
 -> Why multiple languages? This enables us to use best of breed tools regardless of what they're written in.
 
 ## Tools
+
+**Wiz-Cli**
+
+Wiz-cli is a locally deployed command line tool that helps you detect and prevent security misconfigurations and vulnerabilities early in the development cycle.
 
 **Terraform**
 
@@ -46,17 +56,13 @@ Helper library for extracting high-level metadata about Terraform modules from t
 
 https://github.com/hashicorp/terraform-config-inspect
 
-**AWS CLI**
+**AWS CLI V2**
 
 AWS command line tool (with bash auto) if we need to do any adhoc checks
 
 **TFSec (https://github.com/liamg/tfsec)**
 
 Performs basic Terraform static code analysis. This isn't the strongest tool but covers some basics, TerraScan would be better but the setup wasn't easy. To be revisited.
-
-**Cfn Nag (https://github.com/stelligent/cfn_nag)**
-
-The cfn-nag tool looks for patterns in CloudFormation templates that may indicate insecure infrastructure.
 
 **Inspec**
 
@@ -92,8 +98,6 @@ Command line tool for controlling Kubernetes clusters
 **AWS-IAM-Authenticator**
 A tool to use AWS IAM credentials to authenticate to a Kubernetes cluster
 
-**EKSCtlr**
-A simple CLI tool for creating clusters on EKS - Amazon's new managed Kubernetes service for EC2. It is written in Go, and uses CloudFormation
 ## Getting Started
 
 **Optional Local Setup (IAM Keys)**
@@ -165,10 +169,12 @@ From any folder run the following:
             -e AWS_SECRET_ACCESS_KEY \
             -e AWS_SESSION_TOKEN \
             -e AWS_SECURITY_TOKEN \
-            --env AWS_DEFAULT_REGION=eu-west-1 \
-            --user "$(id -u):$(id -g)" \
+            -e AWS_DEFAULT_REGION=eu-west-1 \
             -v "$PWD:/data" \
             -v ~/.ssh:/root/.ssh \
+            -v ~/.kube:/root/.kube \
+            -v ~/.aws:/root/.aws \
+            -v /var/run/docker.sock:/var/run/docker.sock \
             ifunky/polydev:latest
 Once in the PolyDev shell start typing AWS commands - with tab completion :-)
 

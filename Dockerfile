@@ -1,20 +1,28 @@
-FROM alpine:3.14.2
+ARG ALPINE_VERSION=3.16.2
 
-ENV TERRAFORM_VERSION=1.0.9
+FROM alpine:3.16.2
+
+ENV TERRAFORM_VERSION=1.3.1
+ENV KUBE_VERSION=v1.25.0
+ENV WIZCLI_IN_CONTAINER=1
+ENV WIZ_DIR=/root/.wiz
+ENV AWS_PAGER=
+ENV ASSUME_NO_MOVING_GC_UNSAFE_RISK_IT_WITH=go1.18
+
 # Configure Go
 ENV GOROOT /usr/lib/go
 ENV GOPATH /go
 ENV PATH /go/bin:$PATH
 
-ARG MODULE_VERSION=0.1.0
-ARG INSPEC_VERSION=4.17.14
+ARG AWS_CLI_VERSION=2.7.28
+ARG INSPEC_VERSION=5.18.14
 ARG GEM_SOURCE=https://rubygems.org
-ARG TFLINT_VERSION=v0.33.0
-ARG YO_VERSION=3.1.1
-ARG PACKER_VERSION=1.5.1
+ARG TFLINT_VERSION=v0.39.3
+ARG YO_VERSION=4.3.0
+ARG PACKER_VERSION=1.8.3
 ARG HELM_VERSION=2.16.3
-ENV KUBE_VERSION=v1.17.3
 ARG AWS_IAM_AUTH_VERSION=0.5.0
+ARG CONFTEST_VERSION=0.34.0
 
 # Terraform and useful tools
 RUN echo http://mirror.math.princeton.edu/pub/alpinelinux/v3.8/main >> /etc/apk/repositories && \
@@ -22,12 +30,13 @@ RUN echo http://mirror.math.princeton.edu/pub/alpinelinux/v3.8/main >> /etc/apk/
     echo http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
     apk update && \
     apk --no-cache add  \
+    docker-cli \
     vim \
     musl-dev \
     nodejs-current \
-    npm \
     linux-headers \
     python3-dev \
+    py3-pip \
     build-base \
     libffi-dev \
     libxml2-dev \
@@ -35,6 +44,8 @@ RUN echo http://mirror.math.princeton.edu/pub/alpinelinux/v3.8/main >> /etc/apk/
     go \
     gcc \
     git \
+    groff \
+    cmake \
     openssl-dev \
     openssh-client \
     make \
@@ -45,26 +56,48 @@ RUN echo http://mirror.math.princeton.edu/pub/alpinelinux/v3.8/main >> /etc/apk/
     unzip \
     openssl \ 
     wget && \
+    # Python setup
+    ln -sf python3 /usr/bin/python && \
+    python3 -m ensurepip && \
+    pip3 install --no-cache --upgrade pip setuptools && \
     cd /tmp && \
     wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin
 
-# goplate v3.10.0 requires go v17 whuch isn't installed as part of this build
-RUN go install github.com/aquasecurity/tfsec/cmd/tfsec@latest && \
-    go get -u github.com/hashicorp/terraform-config-inspect && \
-    go get github.com/hairyhenderson/gomplate/v3/cmd/gomplate@v3.8.0
+# Install npm as Alpine apk installs an old version
+RUN curl -L https://www.npmjs.com/install.sh | sh 
+
+# AWS CLI V2
+RUN git clone --single-branch --depth 1 -b ${AWS_CLI_VERSION} https://github.com/aws/aws-cli.git
+
+WORKDIR aws-cli
+RUN sed -i'' 's/PyInstaller.*/PyInstaller==5.2/g' requirements-build.txt
+RUN python -m venv venv
+RUN . venv/bin/activate
+RUN scripts/installers/make-exe
+RUN unzip -q dist/awscli-exe.zip
+RUN aws/install --bin-dir /aws-cli-bin
+RUN /aws-cli-bin/aws --version
+
+# reduce image size: remove autocomplete and examples
+RUN rm -rf /usr/local/aws-cli/v2/current/dist/aws_completer /usr/local/aws-cli/v2/current/dist/awscli/data/ac.index /usr/local/aws-cli/v2/current/dist/awscli/examples && \
+    find /usr/local/aws-cli/v2/current/dist/awscli/botocore/data -name examples-1.json -delete
+
+RUN go install github.com/hairyhenderson/gomplate/v3/cmd/gomplate@v3.10.0 && \
+    go install github.com/hashicorp/terraform-config-inspect@latest 
 
 # TFlint
 RUN curl -Lo tflint.zip https://github.com/wata727/tflint/releases/download/${TFLINT_VERSION}/tflint_linux_amd64.zip && \
     unzip tflint.zip -d /bin && \
     rm -f tflint.zip
 
-# Yeoman 
-#RUN npm uninstall -g npm;npm install -g yo@${YO_VERSION}
-
-RUN wget https://github.com/open-policy-agent/conftest/releases/download/v0.28.2/conftest_0.28.2_Linux_x86_64.tar.gz  && \
-    tar xzf conftest_0.28.2_Linux_x86_64.tar.gz && \
+# Conftest
+RUN wget https://github.com/open-policy-agent/conftest/releases/download/v${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION}_Linux_x86_64.tar.gz  && \
+    tar xzf conftest_${CONFTEST_VERSION}_Linux_x86_64.tar.gz && \
     mv conftest /usr/local/bin
+
+# Yeoman 
+RUN npm install -g yo@${YO_VERSION}
 
 # Packer Install
 RUN curl -Lo packer.zip https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip && \
@@ -93,29 +126,29 @@ RUN apk --no-cache add \
   ruby-bundler \
   ruby-json \
   ruby-webrick \
-  diffutils=3.6-r1
+  diffutils
 
-#RUN gem install bigdecimal && \
-#    gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec && \
-#    gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec-bin && \
-#    gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec-bin && \
-#    gem install cfn-nag
+RUN gem install bigdecimal && \
+   gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec && \
+   gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec-bin && \
+   gem install --no-document --source ${GEM_SOURCE} --version ${INSPEC_VERSION} inspec-bin
 
-# Python3 and tools
-RUN apk add --no-cache python3 && \
-    python3 -m ensurepip && \
+# Wiz CLI
+RUN curl -o /usr/local/bin/wizcli https://wizcli.app.wiz.io/wizcli && \
+    chmod +x /usr/local/bin/wizcli
+
+# Python and apk idy up
+RUN apk add --no-cache  && \
+    #python3 -m ensurepip && \
     rm -r /usr/lib/python*/ensurepip && \
-    pip3 install --upgrade pip setuptools && \    
-    if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
-    if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
-    ln -s /usr/bin/python3 /usr/local/bin/ && \
-    pip3 install --upgrade awscli && \
+    #pip3 install --upgrade pip setuptools && \    
+    #if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
+    #if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
+    #ln -s /usr/bin/python3 /usr/local/bin/ && \
     pip3 install boto3 && \
-    pip3 install ansi2html && \
     pip3 install yamllint && \
+    pip3 install wheel && \
     pip3 install checkov && \
-    #pip3 install scoutsuite && \
-    pip3 install --no-cache-dir terrascan==${MODULE_VERSION} && \ 
     rm -r /root/.cache && \
     rm /var/cache/apk/* \
     rm -rf /tmp/* && \
